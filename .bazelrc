@@ -1,0 +1,22 @@
+build --compilation_mode=opt
+build --strip=never
+
+build --repo_env=RULES_RUST_TOOLCHAIN_INCLUDE_RUSTC_SRCS=true
+
+build:remote --build_metadata=REPO_URL=https://github.com/titanous/bazel-rbe-prost-error.git
+build:remote --bes_results_url=https://app.buildbuddy.io/invocation/
+build:remote --bes_backend=grpcs://remote.buildbuddy.io
+build:remote --remote_cache=grpcs://remote.buildbuddy.io
+build:remote --noremote_upload_local_results
+build:remote --remote_timeout=600
+build:remote --remote_executor=grpcs://remote.buildbuddy.io
+build:remote --jobs=100
+build:remote --host_platform=@buildbuddy_toolchain//:platform
+build:remote --platforms=@buildbuddy_toolchain//:platform
+build:remote --extra_execution_platforms=@buildbuddy_toolchain//:platform
+build:remote --crosstool_top=@buildbuddy_toolchain//:toolchain
+build:remote --extra_toolchains=@buildbuddy_toolchain//:cc_toolchain
+build:remote --define=EXECUTOR=remote
+build:remote --experimental_remote_cache_compression
+build:remote --experimental_remote_cache_async
+build:remote --remote_download_toplevel

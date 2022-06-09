@@ -1,0 +1,94 @@
+workspace(
+    name = "repro",
+)
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+## Rust support
+
+rules_rust_version = "0.5.0"
+
+http_archive(
+    name = "rules_rust",
+    sha256 = "d0f505b8801e05900b126e239259152062a6ee523b4f2013c0d7ca332b915a26",
+    strip_prefix = "rules_rust-{version}".format(version = rules_rust_version),
+    url = "https://github.com/bazelbuild/rules_rust/archive/{version}.tar.gz".format(version = rules_rust_version),
+)
+
+load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+
+rules_rust_dependencies()
+
+rust_register_toolchains()
+
+register_toolchains(
+    "//build_tools/prostgen:prostgen_toolchain",
+)
+
+cargo_raze_version = "0.15.0"
+
+http_archive(
+    name = "cargo_raze",
+    sha256 = "58ecdbae2680b71edc19a0f563cdb73e66c8914689b6edab258c8b90a93b13c7",
+    strip_prefix = "cargo-raze-{version}".format(version = cargo_raze_version),
+    url = "https://github.com/google/cargo-raze/archive/v{version}.tar.gz".format(version = cargo_raze_version),
+)
+
+load("@cargo_raze//:repositories.bzl", "cargo_raze_repositories")
+
+cargo_raze_repositories()
+
+load("@cargo_raze//:transitive_deps.bzl", "cargo_raze_transitive_deps")
+
+cargo_raze_transitive_deps()
+
+load("//third_party/cargo:crates.bzl", "raze_fetch_remote_crates")
+
+raze_fetch_remote_crates()
+
+## protobuf/grpc support
+
+protobuf_version = "3.20.0"
+
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "b07772d38ab07e55eca4d50f4b53da2d998bb221575c60a4f81100242d4b4889",
+    strip_prefix = "protobuf-{version}".format(version = protobuf_version),
+    url = "https://github.com/protocolbuffers/protobuf/archive/v{version}.tar.gz".format(version = protobuf_version),
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+rules_proto_version = "4.0.0-3.20.0"
+
+http_archive(
+    name = "rules_proto",
+    sha256 = "e017528fd1c91c5a33f15493e3a398181a9e821a804eb7ff5acdd1d2d6c2b18d",
+    strip_prefix = "rules_proto-{version}".format(version = rules_proto_version),
+    url = "https://github.com/bazelbuild/rules_proto/archive/{version}.tar.gz".format(version = rules_proto_version),
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+buildbuddy_version = "829c8a574f706de5c96c54ca310f139f4acda7dd"
+
+http_archive(
+    name = "io_buildbuddy_buildbuddy_toolchain",
+    sha256 = "a2a5cccec251211e2221b1587af2ce43c36d32a42f5d881737db3b546a536510",
+    strip_prefix = "buildbuddy-toolchain-{version}".format(version = buildbuddy_version),
+    urls = ["https://github.com/buildbuddy-io/buildbuddy-toolchain/archive/{version}.tar.gz".format(version = buildbuddy_version)],
+)
+
+load("@io_buildbuddy_buildbuddy_toolchain//:deps.bzl", "buildbuddy_deps")
+
+buildbuddy_deps()
+
+load("@io_buildbuddy_buildbuddy_toolchain//:rules.bzl", "buildbuddy")
+
+buildbuddy(name = "buildbuddy_toolchain")

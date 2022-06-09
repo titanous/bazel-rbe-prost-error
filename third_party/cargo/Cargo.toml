@@ -1,0 +1,56 @@
+[package]
+name = "compile_with_bazel"
+version = "0.0.0"
+
+# Mandatory (or Cargo tooling is unhappy)
+[lib]
+path = "fake_lib.rs"
+
+[dependencies]
+anyhow = { version = "=1.0.57", features = ["backtrace"] }
+heck = "=0.4.0"
+prost = "=0.10.4"
+prost-build = "=0.10.4"
+prost-derive = "=0.10.1"
+prost-types = "=0.10.1"
+structopt = { version = "=0.3.26", default-features = false }
+thiserror = "=1.0.31"
+tonic = "=0.7.2"
+tonic-build = "=0.7.2"
+
+[package.metadata.raze]
+workspace_path = "//third_party/cargo"
+package_aliases_dir = "."
+targets = [
+    "x86_64-unknown-linux-gnu",
+]
+genmode = "Remote"
+
+[package.metadata.raze.crates.log.'*']
+additional_flags = [
+    "--cfg=atomic_cas",
+    "--cfg=use_std",
+]
+
+[package.metadata.raze.crates.proc-macro2.'*']
+gen_buildrs = true
+additional_flags = [
+    "--cfg=use_proc_macro",
+]
+
+[package.metadata.raze.crates.libc.'*']
+gen_buildrs = true
+
+[package.metadata.raze.crates.syn.'*']
+gen_buildrs = true
+
+[package.metadata.raze.crates.prost-build.'*']
+build_data_dependencies = ["@com_google_protobuf//:protoc"]
+
+[package.metadata.raze.crates.prost-build.'*'.buildrs_additional_environment_variables]
+PROTOC_NO_VENDOR = "true"
+PROTOC = "$(execpath @com_google_protobuf//:protoc)"
+PROTOC_INCLUDE = "."
+
+[package.metadata.raze.crates.axum.'*']
+compile_data_attr = 'glob(["src/docs/**"])'

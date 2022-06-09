@@ -1,0 +1,14 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("//build_tools/prostgen:prostgen.bzl", "tonic_library")
+
+package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "example_proto",
+    srcs = ["example.proto"],
+)
+
+tonic_library(
+    name = "tonic_library",
+    deps = [":example_proto"],
+)
